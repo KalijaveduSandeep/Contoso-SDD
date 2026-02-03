@@ -349,3 +349,11 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
+
+# Claude Code local settings
+.claude/settings.local.json
