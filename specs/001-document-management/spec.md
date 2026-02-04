@@ -5,6 +5,16 @@
 **Status**: Draft
 **Input**: Document upload and management capabilities for Contoso Dashboard
 
+## Clarifications
+
+### Session 2026-02-03
+
+- Q: Should sharing permissions be hierarchical (owners only, owners+leads, unrestricted)? → A: Employees can only manage their own documents; Team Leads can manage team documents; Project Managers can manage project documents; Administrators have unrestricted access to all documents
+- Q: How should virus scanning be implemented for training? → A: Stub implementation that logs all uploads and approves them; maintains security architecture for future real implementation
+- Q: What search matching strategy (substring vs exact vs full-text)? → A: Substring matching (case-insensitive) - users can search for partial words
+- Q: How should notifications be delivered (persistent DB, real-time SignalR, email, etc.)? → A: Persistent database-backed notifications with UI notification panel; users see notifications in sidebar/panel and can mark read or clear
+- Q: What happens when a task is deleted (cascade delete docs, orphan, or detach)? → A: Detach documents from task but preserve them independently; documents continue to exist in user's library
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
@@ -145,6 +155,7 @@ As an administrator, I need to view all documents in the system, see activity lo
 - How does the system handle simultaneous uploads of very large files? System should queue uploads and show status for each.
 - What happens when a user shares a document with another user who is then removed from the project? System should prevent access immediately.
 - What happens if a document filename contains special characters or Unicode? System should sanitize filenames while preserving file extensions.
+- What happens when a task is deleted? When a task is deleted, any documents attached to it should be detached from the task relationship but preserved in the user's document library; they become standalone documents again.
 
 ## Requirements *(mandatory)*
 
@@ -153,7 +164,7 @@ As an administrator, I need to view all documents in the system, see activity lo
 - **FR-001**: System MUST allow authenticated users to select one or more files from their computer and upload them to the application
 - **FR-002**: System MUST support the following file types: PDF, Microsoft Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx), plain text (.txt), JPEG images, PNG images
 - **FR-003**: System MUST enforce a maximum file size limit of 25 MB per file and reject larger files with a clear error message
-- **FR-004**: System MUST scan uploaded files for viruses and malware before storage
+- **FR-004**: System MUST implement a virus scanning pipeline before storage: for training, use a stub implementation that logs all uploads and approves them; for production, integrate with antivirus service (design via IVirusScanService interface for future implementation)
 - **FR-005**: System MUST require users to provide a document title (required) and category (required) when uploading
 - **FR-006**: System MUST capture file metadata automatically: upload date/time, uploaded by (user name), file size, file type (MIME type)
 - **FR-007**: System MUST allow users to optionally provide description, associated project, and custom tags during upload
@@ -164,7 +175,7 @@ As an administrator, I need to view all documents in the system, see activity lo
 - **FR-012**: System MUST allow users to view a "My Documents" list showing all documents they uploaded with columns: title, category, upload date, file size, associated project
 - **FR-013**: System MUST allow users to sort documents by title, upload date, category, and file size
 - **FR-014**: System MUST allow users to filter documents by category, associated project, and date range
-- **FR-015**: System MUST provide a search function that searches across document title, description, tags, uploader name, and associated project
+- **FR-015**: System MUST provide a search function using case-insensitive substring matching across document title, description, tags, uploader name, and associated project (e.g., searching "report" returns "quarterly report", "monthly reports", etc.)
 - **FR-016**: System MUST return search results within 2 seconds
 - **FR-017**: System MUST enforce authorization so users only see documents they have permission to access in search results
 - **FR-018**: System MUST provide browser-based preview for PDF documents without requiring download
@@ -175,8 +186,12 @@ As an administrator, I need to view all documents in the system, see activity lo
 - **FR-023**: System MUST allow document owners to delete documents with a confirmation dialog
 - **FR-024**: System MUST allow project managers to delete any document in their projects
 - **FR-025**: System MUST permanently remove deleted documents from storage and database
-- **FR-026**: System MUST allow document owners to share documents with specific users or teams
-- **FR-027**: System MUST send in-app notifications to users when documents are shared with them
+- **FR-026**: System MUST allow document owners (Employees for personal docs, Team Leads for team docs, Project Managers for project docs) to share documents with specific users or teams; Administrators can share any document
+- **FR-026a**: System MUST allow only Employees to manage (view, download, edit, delete) their own personal documents
+- **FR-026b**: System MUST allow Team Leads to manage documents uploaded by their team members in addition to their own
+- **FR-026c**: System MUST allow Project Managers to manage all documents associated with their projects
+- **FR-026d**: System MUST allow Administrators to manage all documents in the system regardless of owner or project
+- **FR-027**: System MUST send persistent in-app notifications to users when documents are shared or added to their projects; notifications must be stored in database, displayed in notification panel, and allow users to mark as read or dismiss
 - **FR-028**: System MUST display shared documents in a "Shared with Me" section for recipient users
 - **FR-029**: System MUST display all documents associated with a project when viewing that project
 - **FR-030**: System MUST allow all project team members to view and download project documents based on their project role permissions
@@ -206,6 +221,8 @@ As an administrator, I need to view all documents in the system, see activity lo
 - **DocumentShare**: Represents sharing relationships between users. Attributes include: ShareId, DocumentId (foreign key), SharedByUserId, SharedWithUserId, ShareDate, IsActive (boolean to soft-revoke share)
 
 - **DocumentActivity**: Represents audit trail of document operations. Attributes include: ActivityId, DocumentId, UserId, Action (upload/download/delete/share), Timestamp, Details (JSON for additional context)
+
+- **Notification**: Represents persistent notifications sent to users about document events. Attributes include: NotificationId, RecipientUserId, DocumentId (optional, foreign key), Message (text describing the event), NotificationType (share/project_doc/task_doc), IsRead (boolean), CreatedDate, ReadDate (nullable)
 
 ## Success Criteria *(mandatory)*
 
