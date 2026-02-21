@@ -5,6 +5,7 @@
 @using System.Security.Claims
 @attribute [Authorize]
 @inject IProjectService ProjectService
+@inject IDocumentService DocumentService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -114,7 +115,7 @@
                                     <tbody>
                                         @foreach (var task in project.Tasks.OrderBy(t => t.DueDate))
                                         {
-                                            <tr class="@(task.DueDate.HasValue && task.DueDate < DateTime.Today && task.Status != Models.TaskStatus.Completed ? "table-danger" : "")">">
+                                            <tr class="@(task.DueDate.HasValue && task.DueDate < DateTime.Today && task.Status != Models.TaskStatus.Completed ? "table-danger" : "")">
                                                 <td>
                                                     <strong>@task.Title</strong>
                                                     @if (!string.IsNullOrEmpty(task.Description))
@@ -143,6 +144,45 @@
                                                         </span>
                                                     }
                                                 </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Project Documents</h5>
+                        <a class="btn btn-sm btn-outline-primary" href="/documents">Open Documents</a>
+                    </div>
+                    <div class="card-body">
+                        @if (!projectDocuments.Any())
+                        {
+                            <p class="text-muted mb-0">No documents linked to this project yet.</p>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Uploader</th>
+                                            <th>Scan</th>
+                                            <th>Uploaded</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var document in projectDocuments.Take(10))
+                                        {
+                                            <tr>
+                                                <td>@document.Title</td>
+                                                <td>@document.UploadedByUser.DisplayName</td>
+                                                <td><span class="badge bg-secondary">@document.ScanStatus</span></td>
+                                                <td>@document.UploadedAtUtc.ToString("MMM dd, yyyy")</td>
                                             </tr>
                                         }
                                     </tbody>
@@ -237,6 +277,7 @@
     public int ProjectId { get; set; }
 
     private Project? project;
+    private List<Document> projectDocuments = new();
     private int currentUserId = 0;
 
     protected override async Task OnInitializedAsync()
@@ -253,6 +294,10 @@
         if (currentUserId > 0)
         {
             project = await ProjectService.GetProjectByIdAsync(ProjectId, currentUserId);
+            if (project != null)
+            {
+                projectDocuments = await DocumentService.GetProjectDocumentsAsync(ProjectId, currentUserId);
+            }
         }
         
         if (project == null)

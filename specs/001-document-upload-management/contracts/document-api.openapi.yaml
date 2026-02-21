@@ -1,0 +1,318 @@
+openapi: 3.0.3
+info:
+  title: ContosoDashboard Document API
+  version: 0.1.0
+  description: API contract for document upload and management workflows.
+servers:
+  - url: /api
+security:
+  - cookieAuth: []
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: .AspNetCore.Cookies
+  schemas:
+    DocumentSummary:
+      type: object
+      required: [documentId, title, category, fileSizeBytes, fileType, uploadedAtUtc, uploadedByDisplayName, scanStatus]
+      properties:
+        documentId: { type: integer }
+        title: { type: string }
+        category: { type: string }
+        fileSizeBytes: { type: integer, format: int64 }
+        fileType: { type: string }
+        scanStatus: { type: string, enum: [Pending, Clean, Rejected] }
+        projectId: { type: integer, nullable: true }
+        taskId: { type: integer, nullable: true }
+        uploadedAtUtc: { type: string, format: date-time }
+        uploadedByDisplayName: { type: string }
+    UploadResponse:
+      type: object
+      required: [documentId, title, filePath, scanStatus]
+      properties:
+        documentId: { type: integer }
+        title: { type: string }
+        filePath: { type: string }
+        scanStatus: { type: string, enum: [Pending] }
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string }
+        message: { type: string }
+paths:
+  /documents/uploads:
+    post:
+      summary: Upload one document
+      description: Uploads a document with metadata, stores as Pending scan, and enqueues async malware scan job.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, title, category]
+              properties:
+                file: { type: string, format: binary }
+                title: { type: string }
+                description: { type: string }
+                category: { type: string }
+                projectId: { type: integer }
+                taskId: { type: integer }
+                tags:
+                  type: array
+                  items: { type: string }
+      responses:
+        '202':
+          description: Accepted for asynchronous scan
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UploadResponse' }
+        '400':
+          description: Validation failure
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '403':
+          description: Not authorized
+        '503':
+          description: Queue/scanning pipeline unavailable
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  /documents:
+    get:
+      summary: List accessible documents
+      parameters:
+        - in: query
+          name: category
+          schema: { type: string }
+        - in: query
+          name: projectId
+          schema: { type: integer }
+        - in: query
+          name: fromDate
+          schema: { type: string, format: date }
+        - in: query
+          name: toDate
+          schema: { type: string, format: date }
+        - in: query
+          name: sortBy
+          schema: { type: string, enum: [title, uploadedAtUtc, category, fileSizeBytes] }
+        - in: query
+          name: sortDir
+          schema: { type: string, enum: [asc, desc] }
+        - in: query
+          name: q
+          schema: { type: string }
+      responses:
+        '200':
+          description: Results
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/DocumentSummary' }
+  /projects/{projectId}/documents:
+    get:
+      summary: List project documents
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Results
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/DocumentSummary' }
+        '403': { description: Not authorized }
+  /documents/{documentId}/download:
+    get:
+      summary: Download document
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: File stream
+          content:
+            application/octet-stream: {}
+        '409': { description: Scan pending or rejected }
+        '403': { description: Not authorized }
+        '404': { description: Not found }
+  /documents/{documentId}/preview:
+    get:
+      summary: Preview supported document
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Preview stream
+          content:
+            application/pdf: {}
+            image/jpeg: {}
+            image/png: {}
+        '409': { description: Scan pending or rejected }
+        '415': { description: Preview not supported }
+        '403': { description: Not authorized }
+  /documents/{documentId}/metadata:
+    patch:
+      summary: Update document metadata
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+                category: { type: string }
+                tags:
+                  type: array
+                  items: { type: string }
+      responses:
+        '204': { description: Updated }
+        '403': { description: Not authorized }
+  /documents/{documentId}/replace:
+    post:
+      summary: Replace document file content
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        '202': { description: Replaced and re-queued for scan }
+        '403': { description: Not authorized }
+        '503': { description: Queue/scanning pipeline unavailable }
+  /documents/{documentId}:
+    delete:
+      summary: Delete document permanently
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema: { type: integer }
+      responses:
+        '204': { description: Deleted }
+        '403': { description: Not authorized }
+        '404': { description: Not found }
+  /documents/{documentId}/shares:
+    post:
+      summary: Share document with users/teams
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userIds:
+                  type: array
+                  items: { type: integer }
+                teamKeys:
+                  type: array
+                  items: { type: string }
+      responses:
+        '204': { description: Shared }
+        '403': { description: Not authorized }
+  /documents/shared-with-me:
+    get:
+      summary: List documents shared to caller
+      responses:
+        '200':
+          description: Results
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/DocumentSummary' }
+  /tasks/{taskId}/documents:
+    post:
+      summary: Upload document from task context
+      parameters:
+        - in: path
+          name: taskId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, title, category]
+              properties:
+                file: { type: string, format: binary }
+                title: { type: string }
+                category: { type: string }
+                tags:
+                  type: array
+                  items: { type: string }
+      responses:
+        '202': { description: Uploaded, attached, and queued for scan }
+        '403': { description: Not authorized }
+  /documents/reports/summary:
+    get:
+      summary: Admin reporting summary
+      responses:
+        '200':
+          description: Aggregates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mostUploadedTypes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        fileType: { type: string }
+                        count: { type: integer }
+                  mostActiveUploaders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        userId: { type: integer }
+                        displayName: { type: string }
+                        uploadCount: { type: integer }
+                  accessPatterns:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        activityType: { type: string }
+                        count: { type: integer }

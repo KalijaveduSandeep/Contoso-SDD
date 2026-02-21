@@ -47,6 +47,14 @@
             <div class="col-md-3 mb-3">
                 <div class="card summary-card">
                     <div class="card-body">
+                        <h5 class="card-title">My Documents</h5>
+                        <p class="card-text display-4 text-success">@summary.MyDocumentCount</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card summary-card">
+                    <div class="card-body">
                         <h5 class="card-title">Notifications</h5>
                         <p class="card-text display-4 text-danger">@summary.UnreadNotifications</p>
                     </div>
@@ -92,6 +100,9 @@
                 <a href="/profile" class="list-group-item list-group-item-action">
                     <i class="bi bi-person"></i> Edit Profile
                 </a>
+                <a href="/documents" class="list-group-item list-group-item-action">
+                    <i class="bi bi-file-earmark-text"></i> View Documents
+                </a>
             </div>
         </div>
 
@@ -118,12 +129,47 @@
             }
         </div>
     </div>
+
+    <div class="row mt-4">
+        <div class="col">
+            <h3>Recent Documents</h3>
+            @if (recentDocuments != null && recentDocuments.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Uploader</th>
+                                <th>Uploaded</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var document in recentDocuments)
+                            {
+                                <tr>
+                                    <td>@document.Title</td>
+                                    <td>@document.UploadedByUser.DisplayName</td>
+                                    <td>@document.UploadedAtUtc.ToString("MMM dd, yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No recent documents.</p>
+            }
+        </div>
+    </div>
 </div>
 
 @code {
     private DashboardSummary? summary;
     private List<Announcement>? announcements;
     private List<Notification>? recentNotifications;
+    private List<Document>? recentDocuments;
     private string userName = "User";
     private int currentUserId = 0;
 
@@ -146,6 +192,7 @@
             summary = await DashboardService.GetDashboardSummaryAsync(currentUserId);
             announcements = await DashboardService.GetActiveAnnouncementsAsync();
             recentNotifications = await NotificationService.GetUserNotificationsAsync(currentUserId);
+            recentDocuments = await DashboardService.GetRecentDocumentsAsync(currentUserId);
         }
     }
 
