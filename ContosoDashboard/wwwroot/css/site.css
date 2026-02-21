@@ -164,3 +164,23 @@ main {
 .content {
     padding-top: 1.1rem;
 }
+
+.document-status-pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.document-status-clean {
+    background-color: #198754;
+    color: #fff;
+}
+
+.document-status-rejected {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.document-preview-frame {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+}

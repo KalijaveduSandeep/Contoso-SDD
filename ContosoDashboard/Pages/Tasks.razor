@@ -126,6 +126,9 @@
                                 <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewTaskDetails(task.TaskId)">
                                     <i class="bi bi-eye"></i>
                                 </button>
+                                <a class="btn btn-sm btn-outline-secondary ms-1" href="@BuildAttachLink(task)">
+                                    <i class="bi bi-paperclip"></i>
+                                </a>
                             </td>
                         </tr>
                     }
@@ -200,5 +203,11 @@
             TaskPriority.Low => "secondary",
             _ => "secondary"
         };
+    }
+
+    private string BuildAttachLink(TaskItem task)
+    {
+        var projectId = task.ProjectId.HasValue ? $"&projectId={task.ProjectId.Value}" : string.Empty;
+        return $"/documents?taskId={task.TaskId}{projectId}";
     }
 }

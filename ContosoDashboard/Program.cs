@@ -3,12 +3,14 @@ using ContosoDashboard.Data;
 using ContosoDashboard.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddControllers();
 
 // Add authentication state provider for Blazor
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
@@ -43,6 +45,11 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.Configure<LocalFileStorageOptions>(builder.Configuration.GetSection("DocumentStorage"));
+builder.Services.Configure<ScanQueueOptions>(builder.Configuration.GetSection("ScanQueue"));
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IScanQueueService, ScanQueueService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
 
 // Add HttpContextAccessor for accessing user claims
 builder.Services.AddHttpContextAccessor();
@@ -57,6 +64,21 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
         context.Database.EnsureCreated(); // For development - use migrations in production
+
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        if (app.Environment.IsDevelopment())
+        {
+            try
+            {
+                await context.Documents.AsNoTracking().AnyAsync();
+            }
+            catch (SqlException sqlEx) when (sqlEx.Number == 208)
+            {
+                logger.LogWarning("Documents table is missing. Recreating local development database to apply latest schema.");
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+            }
+        }
     }
     catch (Exception ex)
     {
@@ -105,6 +127,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 

@@ -17,12 +17,12 @@
 
 **Purpose**: Initialize feature scaffolding and baseline configuration for document management.
 
-- [ ] T001 Add document feature package/service registrations in ContosoDashboard/Program.cs
-- [ ] T002 Create base documents page shell and route in ContosoDashboard/Pages/Documents.razor
-- [ ] T003 [P] Add document navigation entry in ContosoDashboard/Shared/NavMenu.razor
-- [ ] T004 [P] Add document UI styles and status badges in ContosoDashboard/wwwroot/css/site.css
-- [ ] T005 Create queue scanning configuration section in ContosoDashboard/appsettings.json
-- [ ] T006 [P] Create local development queue scanning notes in specs/001-document-upload-management/quickstart.md
+- [X] T001 Add document feature package/service registrations in ContosoDashboard/Program.cs
+- [X] T002 Create base documents page shell and route in ContosoDashboard/Pages/Documents.razor
+- [X] T003 [P] Add document navigation entry in ContosoDashboard/Shared/NavMenu.razor
+- [X] T004 [P] Add document UI styles and status badges in ContosoDashboard/wwwroot/css/site.css
+- [X] T005 Create queue scanning configuration section in ContosoDashboard/appsettings.json
+- [X] T006 [P] Create local development queue scanning notes in specs/001-document-upload-management/quickstart.md
 
 ---
 
@@ -32,20 +32,20 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T007 Create Document domain model in ContosoDashboard/Models/Document.cs
-- [ ] T008 [P] Create DocumentTag model in ContosoDashboard/Models/DocumentTag.cs
-- [ ] T009 [P] Create DocumentShare model in ContosoDashboard/Models/DocumentShare.cs
-- [ ] T010 [P] Create DocumentActivity model in ContosoDashboard/Models/DocumentActivity.cs
-- [ ] T011 Configure EF DbSets, relations, and indexes for document entities in ContosoDashboard/Data/ApplicationDbContext.cs
-- [ ] T012 Add file storage abstraction interface in ContosoDashboard/Services/IFileStorageService.cs
-- [ ] T013 Implement local file storage service in ContosoDashboard/Services/LocalFileStorageService.cs
-- [ ] T014 Define document service interface and DTO contracts in ContosoDashboard/Services/IDocumentService.cs
-- [ ] T015 Implement baseline DocumentService with service-layer authorization helpers in ContosoDashboard/Services/DocumentService.cs
-- [ ] T016 Define scan queue publisher abstraction in ContosoDashboard/Services/IScanQueueService.cs
-- [ ] T017 Implement queue publisher service for scan jobs in ContosoDashboard/Services/ScanQueueService.cs
-- [ ] T018 Register document and queue services in DI container in ContosoDashboard/Program.cs
-- [ ] T019 Add scan status and activity enums/shared constants in ContosoDashboard/Models/DocumentEnums.cs
-- [ ] T020 Add migration-ready API endpoint shell for document operations in ContosoDashboard/Controllers/DocumentsController.cs
+- [X] T007 Create Document domain model in ContosoDashboard/Models/Document.cs
+- [X] T008 [P] Create DocumentTag model in ContosoDashboard/Models/DocumentTag.cs
+- [X] T009 [P] Create DocumentShare model in ContosoDashboard/Models/DocumentShare.cs
+- [X] T010 [P] Create DocumentActivity model in ContosoDashboard/Models/DocumentActivity.cs
+- [X] T011 Configure EF DbSets, relations, and indexes for document entities in ContosoDashboard/Data/ApplicationDbContext.cs
+- [X] T012 Add file storage abstraction interface in ContosoDashboard/Services/IFileStorageService.cs
+- [X] T013 Implement local file storage service in ContosoDashboard/Services/LocalFileStorageService.cs
+- [X] T014 Define document service interface and DTO contracts in ContosoDashboard/Services/IDocumentService.cs
+- [X] T015 Implement baseline DocumentService with service-layer authorization helpers in ContosoDashboard/Services/DocumentService.cs
+- [X] T016 Define scan queue publisher abstraction in ContosoDashboard/Services/IScanQueueService.cs
+- [X] T017 Implement queue publisher service for scan jobs in ContosoDashboard/Services/ScanQueueService.cs
+- [X] T018 Register document and queue services in DI container in ContosoDashboard/Program.cs
+- [X] T019 Add scan status and activity enums/shared constants in ContosoDashboard/Models/DocumentEnums.cs
+- [X] T020 Add migration-ready API endpoint shell for document operations in ContosoDashboard/Controllers/DocumentsController.cs
 
 **Checkpoint**: Foundation ready — user story implementation can now begin.
 
@@ -57,13 +57,13 @@
 
 **Independent Test**: Upload valid and invalid files and verify metadata capture, validation messages, and pending scan state in My Documents.
 
-- [ ] T021 [US1] Implement upload input model and server-side validation rules in ContosoDashboard/Models/DocumentUploadRequest.cs
-- [ ] T022 [US1] Implement upload workflow (`validate -> authorize -> path -> save -> metadata -> queue`) in ContosoDashboard/Services/DocumentService.cs
-- [ ] T023 [US1] Implement upload API endpoint returning accepted/pending scan response in ContosoDashboard/Controllers/DocumentsController.cs
-- [ ] T024 [US1] Build upload form/modal UI with metadata fields in ContosoDashboard/Pages/Documents.razor
-- [ ] T025 [US1] Add upload progress indicator and completion/error feedback in ContosoDashboard/Pages/Documents.razor
-- [ ] T026 [US1] Add My Documents list with metadata columns and scan status in ContosoDashboard/Pages/Documents.razor
-- [ ] T027 [US1] Add document upload and validation activity logging in ContosoDashboard/Services/DocumentService.cs
+- [X] T021 [US1] Implement upload input model and server-side validation rules in ContosoDashboard/Models/DocumentUploadRequest.cs
+- [X] T022 [US1] Implement upload workflow (`validate -> authorize -> path -> save -> metadata -> queue`) in ContosoDashboard/Services/DocumentService.cs
+- [X] T023 [US1] Implement upload API endpoint returning accepted/pending scan response in ContosoDashboard/Controllers/DocumentsController.cs
+- [X] T024 [US1] Build upload form/modal UI with metadata fields in ContosoDashboard/Pages/Documents.razor
+- [X] T025 [US1] Add upload progress indicator and completion/error feedback in ContosoDashboard/Pages/Documents.razor
+- [X] T026 [US1] Add My Documents list with metadata columns and scan status in ContosoDashboard/Pages/Documents.razor
+- [X] T027 [US1] Add document upload and validation activity logging in ContosoDashboard/Services/DocumentService.cs
 
 **Checkpoint**: User Story 1 is independently functional and provides MVP value.
 
@@ -75,14 +75,14 @@
 
 **Independent Test**: Verify list and search results honor access rules and preview/download blocks pending/rejected scans.
 
-- [ ] T028 [US2] Implement access-scoped document query methods in ContosoDashboard/Services/DocumentService.cs
-- [ ] T029 [US2] Implement list endpoint with filtering/sorting/query parameters in ContosoDashboard/Controllers/DocumentsController.cs
-- [ ] T030 [US2] Implement project documents endpoint with project membership enforcement in ContosoDashboard/Controllers/DocumentsController.cs
-- [ ] T031 [US2] Implement preview and download endpoints with scan-status gating in ContosoDashboard/Controllers/DocumentsController.cs
-- [ ] T032 [US2] Add browse/search/filter/sort UI interactions in ContosoDashboard/Pages/Documents.razor
-- [ ] T033 [US2] Add project documents integration section in ContosoDashboard/Pages/ProjectDetails.razor
-- [ ] T034 [US2] Add document preview panel/modal behavior for supported types in ContosoDashboard/Pages/Documents.razor
-- [ ] T035 [US2] Add download and preview activity logging in ContosoDashboard/Services/DocumentService.cs
+- [X] T028 [US2] Implement access-scoped document query methods in ContosoDashboard/Services/DocumentService.cs
+- [X] T029 [US2] Implement list endpoint with filtering/sorting/query parameters in ContosoDashboard/Controllers/DocumentsController.cs
+- [X] T030 [US2] Implement project documents endpoint with project membership enforcement in ContosoDashboard/Controllers/DocumentsController.cs
+- [X] T031 [US2] Implement preview and download endpoints with scan-status gating in ContosoDashboard/Controllers/DocumentsController.cs
+- [X] T032 [US2] Add browse/search/filter/sort UI interactions in ContosoDashboard/Pages/Documents.razor
+- [X] T033 [US2] Add project documents integration section in ContosoDashboard/Pages/ProjectDetails.razor
+- [X] T034 [US2] Add document preview panel/modal behavior for supported types in ContosoDashboard/Pages/Documents.razor
+- [X] T035 [US2] Add download and preview activity logging in ContosoDashboard/Services/DocumentService.cs
 
 **Checkpoint**: User Stories 1 and 2 are independently testable and value-complete.
 
@@ -94,16 +94,16 @@
 
 **Independent Test**: Confirm owner/manager actions work per role and recipients receive shared visibility and notifications.
 
-- [ ] T036 [US3] Implement metadata update and tag persistence methods in ContosoDashboard/Services/DocumentService.cs
-- [ ] T037 [US3] Implement file replace workflow with re-queue for scan in ContosoDashboard/Services/DocumentService.cs
-- [ ] T038 [US3] Implement permanent delete workflow with confirmation guard in ContosoDashboard/Services/DocumentService.cs
-- [ ] T039 [US3] Implement share grant creation and shared-with-me retrieval in ContosoDashboard/Services/DocumentService.cs
-- [ ] T040 [US3] Implement metadata, replace, delete, share endpoints in ContosoDashboard/Controllers/DocumentsController.cs
-- [ ] T041 [US3] Add metadata edit UI in ContosoDashboard/Pages/Documents.razor
-- [ ] T042 [US3] Add replace and delete UI actions in ContosoDashboard/Pages/Documents.razor
-- [ ] T043 [US3] Add share dialog and shared-with-me section in ContosoDashboard/Pages/Documents.razor
-- [ ] T044 [US3] Integrate share and lifecycle notifications using ContosoDashboard/Services/NotificationService.cs
-- [ ] T045 [US3] Add lifecycle and share audit event persistence in ContosoDashboard/Services/DocumentService.cs
+- [X] T036 [US3] Implement metadata update and tag persistence methods in ContosoDashboard/Services/DocumentService.cs
+- [X] T037 [US3] Implement file replace workflow with re-queue for scan in ContosoDashboard/Services/DocumentService.cs
+- [X] T038 [US3] Implement permanent delete workflow with confirmation guard in ContosoDashboard/Services/DocumentService.cs
+- [X] T039 [US3] Implement share grant creation and shared-with-me retrieval in ContosoDashboard/Services/DocumentService.cs
+- [X] T040 [US3] Implement metadata, replace, delete, share endpoints in ContosoDashboard/Controllers/DocumentsController.cs
+- [X] T041 [US3] Add metadata edit UI in ContosoDashboard/Pages/Documents.razor
+- [X] T042 [US3] Add replace and delete UI actions in ContosoDashboard/Pages/Documents.razor
+- [X] T043 [US3] Add share dialog and shared-with-me section in ContosoDashboard/Pages/Documents.razor
+- [X] T044 [US3] Integrate share and lifecycle notifications using ContosoDashboard/Services/NotificationService.cs
+- [X] T045 [US3] Add lifecycle and share audit event persistence in ContosoDashboard/Services/DocumentService.cs
 
 **Checkpoint**: User Stories 1–3 are independently functional and enforce lifecycle controls.
 

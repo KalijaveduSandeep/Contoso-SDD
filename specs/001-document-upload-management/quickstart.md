@@ -8,9 +8,15 @@
 
 ## Run
 1. `cd ContosoDashboard`
-2. `dotnet run --launch-profile http`
-3. Open `http://localhost:5000`
-4. Login as one of seeded users from the login page.
+2. Start Azurite queue emulator (for local scan queue): `azurite --queue --location .azurite --silent`
+3. `dotnet run --launch-profile http`
+4. Open `http://localhost:5000`
+5. Login as one of seeded users from the login page.
+
+## Local Queue Notes
+- App uses `ScanQueue:ConnectionString=UseDevelopmentStorage=true` and queue `document-scan-jobs`.
+- If Azurite is not running, uploads fail fast with queue/scanning unavailable message.
+- For worker simulation, poll queue messages and update `Document.ScanStatus` from `Pending` to `Clean`/`Rejected`.
 
 ## Validation Scenarios
 
